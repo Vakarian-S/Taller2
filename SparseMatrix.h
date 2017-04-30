@@ -2,7 +2,7 @@
     {
     public:
     SparseMatrix(int n);
-    SparseMatrix(int rows, columns);
+    SparseMatrix(int row, column);
     
     SparseMatrix(const SparseMatrix &m);
     
@@ -10,7 +10,9 @@
     
     int getRow() const;
     int gerCol() const;
+    int get(int row, int column) const;
     
     
-    private:
+    protected:
+        int m,n;
     }
