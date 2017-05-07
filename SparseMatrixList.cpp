@@ -105,3 +105,42 @@ SparseMatrix* SparseMatrixList::displace(SparseMatrix* target) {
     delete target;
     return newMatrix;
 }
+
+void SparseMatrixList::import() {
+    // leimos el arcvhico de entrada
+    ifstream archivoEntrada("MatricesImportadas.txt");
+    string line;
+    while(archivoEntrada.empty() == 0){
+        getline(archivoEntrada,line);
+        stringstream ss(line);
+        string name;
+        getline(ss,name,';');
+        char divider;
+        int rows;
+        int columns; // datos de los maximos de la matriz
+        int row;
+        int column; //datos de la posicion de cada nodo
+        int data;
+        int dataSize; //cantidad de nodos en la matriz
+        ss >> rows;
+        ss >> divider;
+        ss >> columns;
+        ss >> divider;
+        ss >> dataSize;
+        SparseMatrix* newMatrix = new SparseMatrix(name,rows,columns);
+        // for para cada nodo de esta matriz
+        for(int i = 0; i < dataSize; i++){
+            getline(archivoEntrada,line);
+            ss >> row;
+            ss >> divider;
+            ss >> column;
+            ss >> divider
+            ss >> data;
+            MatrixTerm* newTerm = new MatrixTerm(data,row,column);
+            newMatrix.add(newTerm);
+        }
+        this->push(newMatrix);
+    } // fin while para todo el archivo de entrada
+    
+}
+
