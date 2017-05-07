@@ -156,11 +156,6 @@ void SparseMatrix::display()    {
 
 
 
-    
-    
-
-
-
 
 SparseMatrix::SparseMatrix(const SparseMatrix& orig) {
 }
@@ -168,4 +163,122 @@ SparseMatrix::SparseMatrix(const SparseMatrix& orig) {
 SparseMatrix::~SparseMatrix() {
     delete ACOL;
     delete AROW;
+}
+
+
+SparseMatrix* SparseMatrix::sum(SparseMatrix* matrix1, SparseMatrix* matrix2 , string name){
+
+    //Para la suma de matrices, comenzareos creando la nueva matriz vacia con el tamaño de las matrices sumadas,
+    //luego recorreremos la primera matriz, para cada nodo que encontremos en la primera matriz, buscaremos en esa misma fila en la 
+    //2da matriz un nodo con la misma columna, si se encuentra, se suman sus datos y se crea un nuevo nodo con este dato, la fila
+    //y la columna de los nodos sumados, si no encuentra un nodo igual, lo asume como 0 y el nodo creado sera simplemente un clon
+    //del primer nodo,
+    
+    // una vez hecho esto existe la posibildad que hayan nodos en la 2da matriz que no esten en la primera por lo tanto
+    // recorremos todos los nodos de la 2da matriz y por cada nodo buscamos un nodo igual en la primera matriz, como los de la primera
+    // matriz ya fueron recorridos buscaremos si el 2do nodo NO tiene un nodo con la misma ubicacion en la primera matriz, 
+    // porque sino seria un duplicado, una vez nos aseguremos que no tenga ningun nodo
+    // en la misma posicion añadiremos un clon del nodo de la 2da matriz a la nueva matriz creada
+    SparseMatrix* matrix3 = new SparseMatrix(name,matrix1->maxRow,matrix2->maxColumn);
+    for(int i = 1; i <=matrix1->maxRow ; i++){
+        MatrixTerm* aux = matrix1->AROW[i]->left;
+        while(aux->column != 0){
+            //ahora buscamos su equivalente en la 2da matriz
+            MatrixTerm* aux2 = matrix2->AROW[i]->left
+            while(aux2->column!=0){
+                if(aux2->columna == aux->columna){
+                   MatrixTerm* newTerm = new MatrixTerm(aux->dato+aux2->dato,aux->row,aux->column);
+                   break;
+                }
+                aux2 = aux2->left
+            }
+                //si se recorrio toda la matriz y no se encontro un nodo con la misma posicion se crea un clon de nodo de la 
+                //1ra matriz
+            if(aux2->column == 0 ){
+                 MatrixTerm* newTerm = new MatrixTerm(aux);   
+            }
+            matrix3->add(newTerm);
+            aux = aux->left;
+        }//fin while para cada nodo de la 1ra matriz
+    }//fin for para cada fila de la primera matriz 
+    //Una vez añadidos todos los nodos de la 1ra matriz pasaremos a sumar todos los nodos de la 2da matriz que no tiene un equivalente
+    // en la primera matriz
+    
+    for(int i = 1; i<= matriz2->maxRow;i++){
+        MatrixTerm* aux = matrix2->AROW[i]->left;
+        while(aux->column != 0){
+            //buscamos su equivalente en la primera matriz
+            MatrixTerm* aux2 = matrix1->AROW[i]->left;
+            while(aux2->column != 0){
+                if(aux2->column == aux->column) break;
+                aux2 = aux2->left;
+            }
+            //si se recorrio toda la primera matriz sin encontrar valor equivalente se agrega este nodo a la 3ra matriz
+            if(aux2->column == 0){
+             MatrixTerm* newTerm = new MatrixTerm(aux);    
+             matrix3->add(newTerm);
+            }
+            aux = aux->left; 
+        }//fin while 2da matriz
+    }//fin for
+    
+    return matrix3;
+   
+}
+
+SparseMatrix* SparseMatrix::substract(SparseMatrix* matrix1, SparseMatrix* matrix2 , string name){
+
+    // Para la resta de matrices haremos un proceso casi identico a la suma solamente que debemos añadir
+    // una condicion extra que revise si despues de una resta un nodo queda en 0 por lo que no debera ser creado, como tambien
+    // etndremos que tranasformar todos los numeros de la 2da matriz sin equivalente en la primera matriz a negativos
+    SparseMatrix* matrix3 = new SparseMatrix(name,matrix1->maxRow,matrix2->maxColumn);
+    for(int i = 1; i <=matrix1->maxRow ; i++){
+        MatrixTerm* aux = matrix1->AROW[i]->left;
+        while(aux->column != 0){
+            //ahora buscamos su equivalente en la 2da matriz
+            MatrixTerm* aux2 = matrix2->AROW[i]->left
+            int difference;
+            while(aux2->column!=0){
+                
+                if(aux2->columna == aux->columna){
+                   int difference = aux->dato - aux2->dato
+                   if(difference == 0) break;
+                   MatrixTerm* newTerm = new MatrixTerm(aux->dato+aux2->dato,aux->row,aux->column);
+                   break;
+                }
+                aux2 = aux2->left
+            }//fin while 2
+                //si se recorrio toda la matriz y no se encontro un nodo con la misma posicion se crea un clon de nodo de la 
+                //1ra matriz
+            if(aux2->column == 0 ){
+                 MatrixTerm* newTerm = new MatrixTerm(aux);   
+            }
+            //solo se crea lamatriz si la diferencia de la resta no es 0
+            if(difference != 0) matrix3->add(newTerm);
+            aux = aux->left;
+        }//fin while para cada nodo de la 1ra matriz
+    }//fin for para cada fila de la primera matriz 
+    //Una vez añadidos todos los nodos de la 1ra matriz pasaremos a sumar todos los nodos de la 2da matriz que no tiene un equivalente
+    // en la primera matriz, como son parte de la resta, estos valores seran negativos
+    
+    for(int i = 1; i<= matriz2->maxRow;i++){
+        MatrixTerm* aux = matrix2->AROW[i]->left;
+        while(aux->column != 0){
+            //buscamos su equivalente en la primera matriz
+            MatrixTerm* aux2 = matrix1->AROW[i]->left;
+            while(aux2->column != 0){
+                if(aux2->column == aux->column) break;
+                aux2 = aux2->left;
+            }
+            //si se recorrio toda la primera matriz sin encontrar valor equivalente se agrega este nodo a la 3ra matriz
+            if(aux2->column == 0){
+             MatrixTerm* newTerm = new MatrixTerm(0-aux->dato,aux->row,aux->column);    
+             matrix3->add(newTerm);
+            }
+            aux = aux->left; 
+        }//fin while 2da matriz
+    }//fin for
+    
+    return matrix3;
+   
 }
