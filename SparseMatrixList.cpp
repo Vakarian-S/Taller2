@@ -147,8 +147,11 @@ string SparseMatrixList::countUsed() {
                     }
                 }
                 //Si el valor no se encontro, se agrega
+               if(found == false){
                 valueArray[0][sizeCount] = aux->dato;
+                valueArray[1][sizeCount] = 1;
                 sizeCount++;
+                }
                 aux = aux->left;
             }//fin while de la fila
     }//fin for filas
@@ -160,9 +163,11 @@ string SparseMatrixList::countUsed() {
   if(sizeCount==0) return "No hay ningun valor distinto de 0 en la matriz para desplegar los valores mas y menos repetidos";
     
   //Con nuestro array hecho, buscaremos los numeros que mas y menos se usan en las matrices
+  //mostUsed y leastUsed marcan el numero de veces que se usa el numero mas usado
+  //los Pos indican la posicion en la matriz de aquel numero
   int mostUsed = 0;
   int mostUsedPos = -1;
-  int leastUsed = 0;
+  int leastUsed = 999999;
   int leastUsedPos = -1;
   
   //Recomerros la matriz que creamos
