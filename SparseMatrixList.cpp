@@ -105,3 +105,89 @@ SparseMatrix* SparseMatrixList::displace(SparseMatrix* target) {
     delete target;
     return newMatrix;
 }
+
+
+
+string SparseMatrixList::countUsed() {
+  //Primero necesitaremos un arreglo para almacenar todos los numeros de las matrices, para no sobredimensionar
+  // calcularemos el maximo tamaño posible que puede tomar, esto es, en un caso que todas las matrices esten llenas de
+  //numeros distintos
+  int maxSize = 0;
+  for( int i = 0; i < this->size; i++){
+      maxSize += (this->array[i]->maxColumn * this->array[i]->maxRow);
+  }// Fin for de las matrices de la lista   
+  
+  /* Ahora crearemos una matriz con este diseño
+  
+        [0][4][6][8][12][20]  ----- > Numero encontrado en las matrices 
+        [1][1][2][3][1][10]  ------> Numero de veces que se repite en las matrices
+  */
+  int valueArray[2][maxSize];
+  int sizeCount = 0;
+  
+  //realizamos la operacion para cada una de las matrices en la lista
+    
+  //for para cada matriz de la lista
+  for( int j = 0; j<this->size; j++){
+      
+  //for para cada fila de la matriz
+    for (int i = 1; i <= this->array[j]->maxRow; i++) {
+          MatrixTerm* aux = this->array[j]->AROW[i]->left;
+            //Recorremos la fila para guardar los valores
+            while (aux->column != 0) {
+                //agregamos el dato a nuestro vector
+                //primero comprobamos si el valor ya existe
+                bool found = false;
+                for(int z = 0; z<sizeCount;z++){
+                    if(valueArray[0][z] == aux->dato){
+                    // se encontro el dato por lo que se suma su contador
+                    found = true;
+                    valueArray[1][z]++;
+                    break;
+                    }
+                }
+                //Si el valor no se encontro, se agrega
+               if(found == false){
+                valueArray[0][sizeCount] = aux->dato;
+                valueArray[1][sizeCount] = 1;
+                sizeCount++;
+                }
+                aux = aux->left;
+            }//fin while de la fila
+    }//fin for filas
+  }//fin for matrices 
+ 
+    
+  //Revisamos si se encontraron valores, si no los hay se retorna el mensaje correspondiente
+    
+  if(sizeCount==0) return "No hay ningun valor distinto de 0 en la matriz para desplegar los valores mas y menos repetidos";
+    
+  //Con nuestro array hecho, buscaremos los numeros que mas y menos se usan en las matrices
+  //mostUsed y leastUsed marcan el numero de veces que se usa el numero mas usado
+  //los Pos indican la posicion en la matriz de aquel numero
+  int mostUsed = 0;
+  int mostUsedPos = -1;
+  int leastUsed = 999999;
+  int leastUsedPos = -1;
+  
+  //Recomerros la matriz que creamos
+  for(int i = 0; i<sizeCount;i++){
+    //Revisamos si es el menor o el mayor usado
+    if(valueArray[1][i] > mostUsed){
+        mostUsed = valueArray[1][i];
+        mostUsedPos = i;
+    }
+    if(valueArray[1][i] < leastUsed){
+        leastUsed = valueArray[1][i];
+        leastUsedPos = i;
+    }
+  }//fin for buscador mas y menos usado
+  
+  //retornamos los 2 valores pedidos
+  stringstream ss;
+  ss << "El valor mas repetido en todas las matrices es: " << valueArray[0][mostUsedPos] << ", que se repite "
+     << mostUsed << " veces.\n" << "El valor menos repetido en todas las matrices es: "
+     << valueArray[0][leastUsedPos] << ", que se repite" << leastUsed << " veces." << endl;
+  return ss.str();
+    
+}//fin metodo
