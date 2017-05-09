@@ -105,3 +105,48 @@ SparseMatrix* SparseMatrixList::displace(SparseMatrix* target) {
     delete target;
     return newMatrix;
 }
+
+void SparseMatrixList::import() {
+    // leimos el arcvhico de entrada
+    ifstream archivoEntrada("MatricesImportadas.txt");
+    if (archivoEntrada.peek() == ifstream::traits_type::eof()) {
+        cout << "El archivo de datas \"MatricesImportadas.txt\" es invalido\nCancelando importacion" << endl;
+        return;
+    }
+    string line;
+    while (true) {
+        getline(archivoEntrada, line);
+        stringstream ss(line);
+        string name;
+        getline(ss, name, ';');
+        char divider;
+        int rows;
+        int columns; // datas de los maximos de la matriz
+        int row;
+        int column; //datas de la posicion de cada nodo
+        int data;
+        int dataSize; //cantidad de nodos en la matriz
+        ss >> rows;
+        ss >> divider;
+        ss >> columns;
+        ss >> divider;
+        ss >> dataSize;
+        SparseMatrix* newMatrix = new SparseMatrix(name, rows, columns);
+        // for para cada nodo de esta matriz
+        for (int i = 0; i < dataSize; i++) {
+            getline(archivoEntrada, line);
+            stringstream ssd(line);
+            ssd >> row;
+            ssd >> divider;
+            ssd >> column;
+            ssd >> divider;
+            ssd >> data;
+            MatrixTerm* newTerm = new MatrixTerm(data, row, column);
+            cout << "Se añade termino " << newTerm->data << endl;
+            newMatrix->add(newTerm);
+        }
+        this->push(newMatrix);
+        if (archivoEntrada.eof()) break;
+    } // fin while para todo el archivo de entrada
+
+}
